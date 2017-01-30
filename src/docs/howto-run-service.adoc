@@ -1,0 +1,7 @@
+= HOWTO: run service
+
+== Service locations
+
+Development instance - 138.68.99.206:8081
+
+Production instance - 139.59.141.72:8081
