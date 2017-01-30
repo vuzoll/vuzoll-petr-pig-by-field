@@ -1,0 +1,15 @@
+= vuzoll-petr-pig-by-field
+
+Generates PetrPigByField dataset.
+
+TravisCI - https://travis-ci.org/vuzoll/vuzoll-petr-pig-by-field/
+
+DockerHub - https://hub.docker.com/r/vuzoll/vuzoll-petr-pig-by-field/
+
+== Documentation
+
+link:src/docs/howto-start-docker.adoc[HOWTO: start service as docker container]
+
+link:src/docs/howto-run-service.adoc[HOWTO: run service]
+
+link:src/docs/mongodb-setup.adoc[MongoDB setup]
