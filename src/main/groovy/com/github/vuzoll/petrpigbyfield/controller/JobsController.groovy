@@ -18,21 +18,67 @@ class JobsController {
 
     @GetMapping(path = '/job/{jobId}')
     @ResponseBody Job getJobById(@PathVariable String jobId) {
-        jobsService.getJobById(jobId)
+        Job job = jobsService.getJobById(jobId)
+
+        if (job == null) {
+            return null
+        }
+
+        if (job.messageLog != null) {
+            job.messageLog = job.messageLog.sort({ -it.timestamp }).take(20)
+        } else {
+            job.messageLog = []
+        }
+
+        return job
     }
 
     @GetMapping(path = '/job/last')
     @ResponseBody Job getLastJob() {
-        jobsService.getLastJob()
+        Job job = jobsService.getLastJob()
+
+        if (job == null) {
+            return null
+        }
+
+        if (job.messageLog != null) {
+            job.messageLog = job.messageLog.sort({ -it.timestamp }).take(20)
+        } else {
+            job.messageLog = []
+        }
+
+        return job
     }
 
     @GetMapping(path = '/job/active')
     @ResponseBody Job getActiveJob() {
-        jobsService.getActiveJob()
+        Job job = jobsService.getActiveJob()
+
+        if (job == null) {
+            return null
+        }
+
+        if (job.messageLog != null) {
+            job.messageLog = job.messageLog.sort({ -it.timestamp }).take(20)
+        } else {
+            job.messageLog = []
+        }
+
+        return job
     }
 
     @GetMapping(path = '/job')
     @ResponseBody List<Job> getAllJobs() {
-        jobsService.getAllJobs()
+        List<Job> allJobs = jobsService.getAllJobs()
+
+        allJobs.each { Job job ->
+            if (job.messageLog != null) {
+                job.messageLog = job.messageLog.sort({ -it.timestamp }).take(20)
+            } else {
+                job.messageLog = []
+            }
+        }
+
+        return allJobs
     }
 }

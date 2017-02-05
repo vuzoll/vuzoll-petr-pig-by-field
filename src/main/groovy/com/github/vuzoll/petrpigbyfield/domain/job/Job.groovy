@@ -18,5 +18,7 @@ class Job {
     String timeTaken
 
     String status
-    String message
+    String lastMessage
+
+    List<JobLog> messageLog
 }

@@ -22,6 +22,8 @@ dependencies {
     compile 'ch.qos.logback:logback-classic'
 
     compile 'org.apache.commons:commons-lang3:3.5'
+
+    compile 'joda-time:joda-time'
 }
 
 buildScan {
