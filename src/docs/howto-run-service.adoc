@@ -1,0 +1,23 @@
+= HOWTO: run service
+
+POST to http://$host:$port/prepare/faculties
+
+
+GET to http://$host:$port/faculty
+
+GET to http://$host:$port/faculty/{facultyId}
+
+
+GET to http://$host:$port/job/{jobId}
+
+GET to http://$host:$port/job/last
+
+GET to http://$host:$port/job/active
+
+GET to http://$host:$port/job
+
+== Service locations
+
+Development instance - 138.68.99.206:28003
+
+Production instance - 139.59.141.72:28003
