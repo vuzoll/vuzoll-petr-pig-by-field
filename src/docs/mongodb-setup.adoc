@@ -74,9 +74,3 @@ docker run -it --rm --link vuzoll_mongo:mongo mongo:3.4.1 mongo -u vuzollAdmin -
 docker run -it --rm --link vuzoll_mongo:mongo mongo:3.4.1 mongo -u petrPigByFieldService -p $PASSWORD --authenticationDatabase admin vuzoll_mongo/vuzoll
 ----
 
-== Setup indexes
-
-[source,shell]
-----
-docker run -it --rm --link vuzoll_mongo:mongo mongo:3.4.1 mongo -u petrPigByFieldService -p $PASSWORD --authenticationDatabase admin vuzoll_mongo/vuzoll
-----

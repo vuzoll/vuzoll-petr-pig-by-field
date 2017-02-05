@@ -100,9 +100,9 @@ class JobsService {
     }
 
     void updateJobStatus(Job job, String updateDelay, String message) {
-        if (job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
-            job = jobRepository.findOne job.id
+        job = jobRepository.findOne job.id
 
+        if (job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
             log.info "jobId=${job.id}: ${message}"
             JobLog jobLog = new JobLog()
             jobLog.timestamp = System.currentTimeMillis()

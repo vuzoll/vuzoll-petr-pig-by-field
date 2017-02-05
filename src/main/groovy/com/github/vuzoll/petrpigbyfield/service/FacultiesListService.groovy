@@ -41,7 +41,7 @@ class FacultiesListService {
     private void prepareFacultiesList(Closure statusUpdater) {
         Map<VkFaculty, Integer> facultiesDistribution = [:]
 
-        long totalProfileCount = vkProfileRepository.count()
+        final long totalProfileCount = vkProfileRepository.count()
 
         mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
             statusUpdater.call("processing profile ${index} / ${totalProfileCount}")
