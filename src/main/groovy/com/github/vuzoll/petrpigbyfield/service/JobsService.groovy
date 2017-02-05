@@ -67,7 +67,7 @@ class JobsService {
     }
 
     Job getLastJob() {
-        List<Job> lastJob = jobRepository.findAll(new PageRequest(0, 1, new Sort(Sort.Direction.DESC, 'startTimestamp')))
+        List<Job> lastJob = jobRepository.findAll(new PageRequest(0, 1, new Sort(Sort.Direction.DESC, 'startTimestamp'))).content
         if (lastJob.empty) {
             return null
         } else {
