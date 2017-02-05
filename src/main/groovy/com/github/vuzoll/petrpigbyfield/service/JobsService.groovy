@@ -155,7 +155,7 @@ class JobsService {
             job.lastUpdateTime = job.endTime
             job.timeTaken = toDurationString(System.currentTimeMillis() - job.startTimestamp)
             job.status = JobStatus.COMPLETED.toString()
-            jobRepository.save jobRepository
+            jobRepository.save job
         } catch (e) {
             log.error("jobId=${job.id}: failed", e)
             job.lastMessage = "Failed because of ${e.class.name}, with lastMessage: ${e.message}"
@@ -163,7 +163,7 @@ class JobsService {
             job.lastUpdateTime = job.endTime
             job.timeTaken = toDurationString(System.currentTimeMillis() - job.startTimestamp)
             job.status = JobStatus.FAILED.toString()
-            jobRepository.save jobRepository
+            jobRepository.save job
         }
     }
 
