@@ -7,6 +7,14 @@ GET to http://$host:$port/faculty
 
 GET to http://$host:$port/faculty/{facultyId}
 
+POST to http://$host:$port/faculty/{facultyId}
+
+GET to http://$host:$port/faculty/orderedByNumberOfProfiles
+
+GET to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfProfiles}
+
+POST to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfProfiles}/field/{field}
+
 
 GET to http://$host:$port/job/{jobId}
 

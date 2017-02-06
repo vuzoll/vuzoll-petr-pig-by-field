@@ -16,4 +16,6 @@ class VkFaculty {
     String facultyName
 
     Integer numberOfProfiles
+
+    String field
 }
