@@ -36,7 +36,7 @@ class FieldService {
         Collection<VkFaculty> allFaculties = vkFacultyRepository.findAll()
 
         statusUpdater.call("getting list of all fields among ${allFaculties.size()} faculties")
-        Collection<String> allFieldNames = allFaculties.field
+        Collection<String> allFieldNames = allFaculties.field.findAll({ it != null })
 
         statusUpdater.call("cleaning all previously prepared field records from database")
         fieldRepository.deleteAll()
