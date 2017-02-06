@@ -18,7 +18,6 @@ GET to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfProf
 POST to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfProfiles}/field/{field}
 
 
-
 GET to http://$host:$port/field
 
 GET to http://$host:$port/field/{fieldId}
@@ -26,6 +25,21 @@ GET to http://$host:$port/field/{fieldId}
 GET to http://$host:$port/field/orderedByNumberOfProfiles
 
 GET to http://$host:$port/field/orderedByNumberOfProfiles/{indexByNumberOfProfiles}
+
+
+GET to http://$host:$port/ui/prepare/faculties
+
+GET to http://$host:$port/ui/prepare/fields
+
+GET to http://$host:$port/ui/faculty
+
+GET to http://$host:$port/ui/faculty/{indexByNumberOfProfiles}
+
+GET to http://$host:$port/ui/faculty/{indexByNumberOfProfiles}/{field}
+
+GET to http://$host:$port/ui/field
+
+GET to http://$host:$port/field/{indexByNumberOfProfiles}
 
 
 GET to http://$host:$port/job/{jobId}

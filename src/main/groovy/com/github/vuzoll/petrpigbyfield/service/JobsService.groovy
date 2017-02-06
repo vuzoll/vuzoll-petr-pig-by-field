@@ -79,6 +79,14 @@ class JobsService {
     }
 
     Job startJob(DurableJob durableJob) {
+        runJob(durableJob) { Job job -> taskExecutor.execute(this.&executeDurableJob.curry(job, durableJob)) }
+    }
+
+    Job startJobAndWaitForFinish(DurableJob durableJob) {
+        runJob(durableJob) { Job job -> executeDurableJob(job, durableJob) }
+    }
+
+    private Job runJob(DurableJob durableJob, Closure runAction) {
         Job job = new Job()
         job.name = durableJob.name
         job.status = JobStatus.STARTING.toString()
@@ -87,7 +95,7 @@ class JobsService {
 
         Job activeJob = getActiveJob()
         if (activeJob == null) {
-            taskExecutor.execute(this.&executeDurableJob.curry(job, durableJob))
+            runAction.call(job)
         } else {
             job.lastMessage = "There is another active job with id=$activeJob.id, can't accept new one"
             log.warn job.lastMessage
