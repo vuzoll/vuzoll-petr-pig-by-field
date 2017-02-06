@@ -62,7 +62,7 @@ class AssignFieldsToFacultiesController {
     }
 
     @PostMapping(path = '/faculty/orderedByNumberOfProfiles/{indexByNumberOfProfiles}/field/{field}')
-    @ResponseBody VkFaculty assignFieldToFaculty(@PathVariable Integer indexByNumberOfProfiles, String field) {
+    @ResponseBody VkFaculty assignFieldToFaculty(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String field) {
         VkFaculty faculty = facultyByIndexByNumberOfProfiles(indexByNumberOfProfiles)
         faculty.field = field
 
