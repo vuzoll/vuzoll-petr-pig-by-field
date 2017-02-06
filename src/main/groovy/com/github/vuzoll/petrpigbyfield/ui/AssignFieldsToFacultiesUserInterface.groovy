@@ -77,11 +77,15 @@ class AssignFieldsToFacultiesUserInterface {
 
     @GetMapping(path = '/ui/field')
     @ResponseBody String getAllFieldsOrderedByNumberOfProfiles() {
+        jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
+
         fieldRepository.findAll(new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles'))).collect(this.&toFieldPresentation).join('\n')
     }
 
     @GetMapping(path = '/field/{indexByNumberOfProfiles}')
     @ResponseBody String getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
+        jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
+
         toFieldPresentation(fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles')))).content.first())
     }
 
@@ -103,6 +107,6 @@ class AssignFieldsToFacultiesUserInterface {
         String numberOfProfiles = "${field.numberOfProfiles} профилей" ?: 'количество профилей неизвестно'
         List<String> facultiesPresentation = field.faculties.collect(this.&toFacultyPresentation)
 
-        return "${fieldName} - $numberOfProfiles\n${facultiesPresentation.collect({"\t\t${it}"}).join('\n')}" 
+        return "${fieldName} - $numberOfProfiles\n${facultiesPresentation.collect({"\t\t${it}"}).join('\n')}"
     }
 }
