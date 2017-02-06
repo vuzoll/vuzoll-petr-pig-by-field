@@ -2,6 +2,8 @@
 
 POST to http://$host:$port/prepare/faculties
 
+POST to http://$host:$port/prepare/fields
+
 
 GET to http://$host:$port/faculty
 
@@ -14,6 +16,16 @@ GET to http://$host:$port/faculty/orderedByNumberOfProfiles
 GET to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfProfiles}
 
 POST to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfProfiles}/field/{field}
+
+
+
+GET to http://$host:$port/field
+
+GET to http://$host:$port/field/{facultyId}
+
+GET to http://$host:$port/field/orderedByNumberOfProfiles
+
+GET to http://$host:$port/field/orderedByNumberOfProfiles/{indexByNumberOfProfiles}
 
 
 GET to http://$host:$port/job/{jobId}
