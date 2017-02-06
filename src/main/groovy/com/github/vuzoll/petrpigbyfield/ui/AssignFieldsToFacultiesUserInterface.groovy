@@ -60,7 +60,7 @@ class AssignFieldsToFacultiesUserInterface {
 
     @GetMapping(path = '/ui/faculty')
     @ResponseBody String getAllFacultiesOrderedByNumberOfProfiles() {
-        allFacultiesOrderedByNumberOfProfilesDesc().collect(this.&toFacultyPresentation).join('\n')
+        vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFacultyPresentation).join('\n')
     }
 
     @GetMapping(path = '/ui/faculty/{indexByNumberOfProfiles}')
@@ -98,7 +98,7 @@ class AssignFieldsToFacultiesUserInterface {
 
     private String toFacultyPresentation(VkFaculty faculty) {
         Integer indexByNumberOfProfiles = allFacultiesOrderedByNumberOfProfilesDesc().findIndexOf({ it == faculty }) + 1
-        
+
         String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.id}"
         String universityName = StringUtils.isNoneBlank(faculty.university.universityName) ? faculty.university.universityName : "university_id=${faculty.university.universityId}"
         String numberOfProfiles = "${faculty.numberOfProfiles} профилей" ?: 'количество профилей неизвестно'
