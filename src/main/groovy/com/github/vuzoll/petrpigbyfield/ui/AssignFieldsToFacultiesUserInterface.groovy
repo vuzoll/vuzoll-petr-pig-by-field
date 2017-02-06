@@ -8,6 +8,7 @@ import com.github.vuzoll.petrpigbyfield.repository.vk.VkFacultyRepository
 import com.github.vuzoll.petrpigbyfield.service.FacultiesListService
 import com.github.vuzoll.petrpigbyfield.service.FieldService
 import com.github.vuzoll.petrpigbyfield.service.JobsService
+import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @Slf4j
 class AssignFieldsToFacultiesUserInterface {
+
+    static final Sort SORT_BY_NUMBER_OF_PROFILES_DESC = new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles'))
 
     @Autowired
     JobsService jobsService
@@ -57,7 +60,7 @@ class AssignFieldsToFacultiesUserInterface {
 
     @GetMapping(path = '/ui/faculty')
     @ResponseBody String getAllFacultiesOrderedByNumberOfProfiles() {
-        vkFacultyRepository.findAll(new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles'))).collect(this.&toFacultyPresentation).join('\n')
+        allFacultiesOrderedByNumberOfProfilesDesc().collect(this.&toFacultyPresentation).join('\n')
     }
 
     @GetMapping(path = '/ui/faculty/{indexByNumberOfProfiles}')
@@ -79,27 +82,29 @@ class AssignFieldsToFacultiesUserInterface {
     @ResponseBody String getAllFieldsOrderedByNumberOfProfiles() {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
-        fieldRepository.findAll(new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles'))).collect(this.&toFieldPresentation).join('\n')
+        fieldRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFieldPresentation).join('\n')
     }
 
     @GetMapping(path = '/field/{indexByNumberOfProfiles}')
     @ResponseBody String getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
-        toFieldPresentation(fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles')))).content.first())
+        toFieldPresentation(fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first())
     }
 
     private VkFaculty facultyByIndexByNumberOfProfiles(Integer indexByNumberOfProfiles) {
-        vkFacultyRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles')))).content.first()
+        vkFacultyRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first()
     }
 
     private String toFacultyPresentation(VkFaculty faculty) {
+        Integer indexByNumberOfProfiles = allFacultiesOrderedByNumberOfProfilesDesc().findIndexOf({ it == faculty }) + 1
+        
         String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.id}"
         String universityName = StringUtils.isNoneBlank(faculty.university.universityName) ? faculty.university.universityName : "university_id=${faculty.university.universityId}"
         String numberOfProfiles = "${faculty.numberOfProfiles} профилей" ?: 'количество профилей неизвестно'
         String field = StringUtils.isNoneBlank(faculty.field) ? faculty.field : 'сфера не отмечена'
 
-        return "${facultyName} ${universityName} (${field}) - $numberOfProfiles"
+        return "#${indexByNumberOfProfiles}: ${facultyName} ${universityName} (${field}) - $numberOfProfiles"
     }
 
     private String toFieldPresentation(Field field) {
@@ -108,5 +113,10 @@ class AssignFieldsToFacultiesUserInterface {
         List<String> facultiesPresentation = field.faculties.sort({ -it.numberOfProfiles }).collect(this.&toFacultyPresentation)
 
         return "${fieldName} - $numberOfProfiles\n${facultiesPresentation.collect({"\t\t${it}"}).join('\n')}"
+    }
+
+    @Memoized
+    private List<VkFaculty> allFacultiesOrderedByNumberOfProfilesDesc() {
+        vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC)
     }
 }
