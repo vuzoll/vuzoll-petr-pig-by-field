@@ -105,7 +105,7 @@ class AssignFieldsToFacultiesUserInterface {
     private String toFieldPresentation(Field field) {
         String fieldName = field.name
         String numberOfProfiles = "${field.numberOfProfiles} профилей" ?: 'количество профилей неизвестно'
-        List<String> facultiesPresentation = field.faculties.collect(this.&toFacultyPresentation)
+        List<String> facultiesPresentation = field.faculties.sort({ -it.numberOfProfiles }).collect(this.&toFacultyPresentation)
 
         return "${fieldName} - $numberOfProfiles\n${facultiesPresentation.collect({"\t\t${it}"}).join('\n')}"
     }
