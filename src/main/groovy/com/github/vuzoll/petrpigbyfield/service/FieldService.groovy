@@ -22,7 +22,7 @@ class FieldService {
         Collection<VkFaculty> allFaculties = vkFacultyRepository.findAll()
 
         allFaculties.field.collect { String fieldName ->
-            List<VkFaculty> faculties = getFacultiesByField(fieldName)
+            List<VkFaculty> faculties = allFaculties.findAll({ VkFaculty faculty -> faculty.field == fieldName })
 
             Field.builder()
                     .name(fieldName)
