@@ -104,7 +104,7 @@ class JobsService {
         if (job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
             log.info "jobId=${job.id}: ${message}"
             log.info "jobId=${job.id}: already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
-            
+
             JobLog jobLog = new JobLog()
             jobLog.timestamp = System.currentTimeMillis()
             jobLog.time = LocalDateTime.now().toString()

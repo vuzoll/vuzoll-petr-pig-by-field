@@ -21,7 +21,7 @@ POST to http://$host:$port/faculty/orderedByNumberOfProfiles/{indexByNumberOfPro
 
 GET to http://$host:$port/field
 
-GET to http://$host:$port/field/{facultyId}
+GET to http://$host:$port/field/{fieldId}
 
 GET to http://$host:$port/field/orderedByNumberOfProfiles
 
