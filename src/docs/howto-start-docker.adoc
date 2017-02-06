@@ -24,7 +24,9 @@ MONGO_USERNAME - username for authentication to mongodb (default is petrPigByFie
 
 MONGO_PASSWORD - password for authentication to mongodb
 
-FACULTIES_LIST_UPDATE_DELAY - delay for getting updates for preparting faculties list (default is 1min)
+FACULTIES_LIST_UPDATE_DELAY - delay for getting updates for preparing faculties list (default is 1min)
+
+FIELDS_LIST_UPDATE_DELAY - delay for getting updates for preparing fields list (default is 5sec)
 
 ROOT_LOG_LEVEL - logging level for third-party libraries (default is INFO)
 

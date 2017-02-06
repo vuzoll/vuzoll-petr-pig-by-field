@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service
 
 import javax.annotation.PostConstruct
 import java.time.LocalDateTime
-import java.util.concurrent.TimeUnit
 
 @Service
 @Slf4j
@@ -104,6 +103,8 @@ class JobsService {
 
         if (job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
             log.info "jobId=${job.id}: ${message}"
+            log.info "jobId=${job.id}: already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
+
             JobLog jobLog = new JobLog()
             jobLog.timestamp = System.currentTimeMillis()
             jobLog.time = LocalDateTime.now().toString()
