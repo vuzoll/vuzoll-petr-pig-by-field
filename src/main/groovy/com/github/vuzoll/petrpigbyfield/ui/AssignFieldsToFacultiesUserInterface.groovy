@@ -99,7 +99,7 @@ class AssignFieldsToFacultiesUserInterface {
     private String toFacultyPresentation(VkFaculty faculty) {
         Integer indexByNumberOfProfiles = allFacultiesOrderedByNumberOfProfilesDesc().findIndexOf({ it == faculty }) + 1
 
-        String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.id}"
+        String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.facultyId}"
         String universityName = StringUtils.isNoneBlank(faculty.university.universityName) ? faculty.university.universityName : "university_id=${faculty.university.universityId}"
         String numberOfProfiles = "${faculty.numberOfProfiles} профилей" ?: 'количество профилей неизвестно'
         String field = StringUtils.isNoneBlank(faculty.field) ? faculty.field : 'сфера не отмечена'
