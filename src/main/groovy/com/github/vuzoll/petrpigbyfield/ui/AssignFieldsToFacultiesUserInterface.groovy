@@ -89,11 +89,27 @@ class AssignFieldsToFacultiesUserInterface {
     @ResponseBody String getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
-        toFieldPresentation(fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first())
+        toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
+    }
+
+    @GetMapping(path = '/field/{indexByNumberOfProfiles}/{newFieldName}')
+    @ResponseBody String renameField(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String newFieldName) {
+        jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
+
+        Field oldField = fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles)
+        Collection<VkFaculty> fieldFaculties = vkFacultyRepository.findByField(oldField.name)
+        fieldFaculties.each { it.field = newFieldName }
+        vkFacultyRepository.save(fieldFaculties)
+
+        toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
     }
 
     private VkFaculty facultyByIndexByNumberOfProfiles(Integer indexByNumberOfProfiles) {
         vkFacultyRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first()
+    }
+
+    private Field fieldByIndexByNumberOfProfiles(Integer indexByNumberOfProfiles) {
+        fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first()
     }
 
     private String toFacultyPresentation(VkFaculty faculty) {

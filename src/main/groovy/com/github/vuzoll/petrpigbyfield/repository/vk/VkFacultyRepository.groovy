@@ -8,4 +8,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 interface VkFacultyRepository extends PagingAndSortingRepository<VkFaculty, String> {
 
     VkFaculty findOneByFacultyId(String facultyId)
+
+    Collection<VkFaculty> findByField(String field)
 }
