@@ -85,21 +85,38 @@ class AssignFieldsToFacultiesUserInterface {
         fieldRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFieldPresentation).join('\n')
     }
 
-    @GetMapping(path = '/field/{indexByNumberOfProfiles}')
+    @GetMapping(path = '/ui/field/{indexByNumberOfProfiles}')
     @ResponseBody String getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
-        toFieldPresentation(fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first())
+        toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
+    }
+
+    @GetMapping(path = '/ui/field/{indexByNumberOfProfiles}/{newFieldName}')
+    @ResponseBody String renameField(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String newFieldName) {
+        jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
+
+        Field oldField = fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles)
+        Collection<VkFaculty> fieldFaculties = vkFacultyRepository.findByField(oldField.name)
+        fieldFaculties.each { it.field = newFieldName }
+        vkFacultyRepository.save(fieldFaculties)
+
+        jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
+        toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
     }
 
     private VkFaculty facultyByIndexByNumberOfProfiles(Integer indexByNumberOfProfiles) {
         vkFacultyRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first()
     }
 
+    private Field fieldByIndexByNumberOfProfiles(Integer indexByNumberOfProfiles) {
+        fieldRepository.findAll(new PageRequest(indexByNumberOfProfiles - 1, 1, SORT_BY_NUMBER_OF_PROFILES_DESC)).content.first()
+    }
+
     private String toFacultyPresentation(VkFaculty faculty) {
         Integer indexByNumberOfProfiles = allFacultiesOrderedByNumberOfProfilesDesc().findIndexOf({ it == faculty }) + 1
 
-        String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.id}"
+        String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.facultyId}"
         String universityName = StringUtils.isNoneBlank(faculty.university.universityName) ? faculty.university.universityName : "university_id=${faculty.university.universityId}"
         String numberOfProfiles = "${faculty.numberOfProfiles} профилей" ?: 'количество профилей неизвестно'
         String field = StringUtils.isNoneBlank(faculty.field) ? faculty.field : 'сфера не отмечена'
