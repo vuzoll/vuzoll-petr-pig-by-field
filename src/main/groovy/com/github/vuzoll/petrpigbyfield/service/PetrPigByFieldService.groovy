@@ -74,25 +74,25 @@ class PetrPigByFieldService {
 
         statusUpdater.call("processing countries")
         Map<VkCountry, Integer> countriesIds = [:]
-        countriesDistribution.sort({ VkCountry country, Integer numberOfProfiles -> -numberOfProfiles }).eachWithIndex{ VkCountry country, Integer numberOfProfiles, int index ->
+        countriesDistribution.sort({ d1, d2 -> d2.value <=> d1.value }).eachWithIndex{ VkCountry country, Integer numberOfProfiles, int index ->
             countriesIds.put(country, index + 1)
         }
 
         statusUpdater.call("processing universities")
         Map<VkUniversity, Integer> universitiesIds = [:]
-        universitiesDistribution.sort({ VkUniversity university, Integer numberOfProfiles -> -numberOfProfiles }).eachWithIndex{ VkUniversity university, Integer numberOfProfiles, int index ->
+        universitiesDistribution.sort({ d1, d2 -> d2.value <=> d1.value }).eachWithIndex{ VkUniversity university, Integer numberOfProfiles, int index ->
             universitiesIds.put(university, index + 1)
         }
 
         statusUpdater.call("processing faculties")
         Map<VkFaculty, Integer> facultiesIds = [:]
-        facultiesDistribution.sort({ VkFaculty faculty, Integer numberOfProfiles -> -numberOfProfiles }).eachWithIndex{ VkFaculty faculty, Integer numberOfProfiles, int index ->
+        facultiesDistribution.sort({ d1, d2 -> d2.value <=> d1.value }).eachWithIndex{ VkFaculty faculty, Integer numberOfProfiles, int index ->
             facultiesIds.put(faculty, index + 1)
         }
 
         statusUpdater.call("processing fields")
         Map<String, Integer> fieldIds = [:]
-        fieldDistribution.sort({ String field, Integer numberOfProfiles -> -numberOfProfiles }).eachWithIndex{ String field, Integer numberOfProfiles, int index ->
+        fieldDistribution.sort({ d1, d2 -> d2.value <=> d1.value }).eachWithIndex{ String field, Integer numberOfProfiles, int index ->
             fieldIds.put(field, index + 1)
         }
 
