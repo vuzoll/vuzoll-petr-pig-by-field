@@ -6,4 +6,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 
 @RepositoryRestResource(collectionResourceRel = 'faculty', path = 'faculty')
 interface VkFacultyRepository extends PagingAndSortingRepository<VkFaculty, String> {
+
+    VkFaculty findOneByFacultyId(String facultyId)
 }

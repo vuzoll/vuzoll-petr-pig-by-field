@@ -50,7 +50,10 @@ class FacultiesListService {
             }
         }
 
-        facultiesDistribution.each({ VkFaculty vkFaculty, Integer numberOfProfiles -> vkFaculty.numberOfProfiles = numberOfProfiles})
+        facultiesDistribution.each({ VkFaculty vkFaculty, Integer numberOfProfiles ->
+            vkFaculty.numberOfProfiles = numberOfProfiles
+            vkFaculty.field = vkFacultyRepository.findOneByFacultyId(vkFaculty.facultyId)?.field
+        })
 
         statusUpdater.call("cleaning all previously prepared faculty records from database")
         vkFacultyRepository.deleteAll()
