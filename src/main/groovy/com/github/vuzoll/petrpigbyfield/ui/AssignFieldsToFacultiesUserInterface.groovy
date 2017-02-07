@@ -85,14 +85,14 @@ class AssignFieldsToFacultiesUserInterface {
         fieldRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFieldPresentation).join('\n')
     }
 
-    @GetMapping(path = '/field/{indexByNumberOfProfiles}')
+    @GetMapping(path = '/ui/field/{indexByNumberOfProfiles}')
     @ResponseBody String getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
         toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
     }
 
-    @GetMapping(path = '/field/{indexByNumberOfProfiles}/{newFieldName}')
+    @GetMapping(path = '/ui/field/{indexByNumberOfProfiles}/{newFieldName}')
     @ResponseBody String renameField(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String newFieldName) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
