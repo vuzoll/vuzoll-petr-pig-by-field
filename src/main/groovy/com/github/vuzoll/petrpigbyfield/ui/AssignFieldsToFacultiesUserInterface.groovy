@@ -101,6 +101,7 @@ class AssignFieldsToFacultiesUserInterface {
         fieldFaculties.each { it.field = newFieldName }
         vkFacultyRepository.save(fieldFaculties)
 
+        jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
         toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
     }
 
