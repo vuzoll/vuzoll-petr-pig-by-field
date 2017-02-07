@@ -45,7 +45,7 @@ class FacultiesListService {
 
         mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
             statusUpdater.call("processing profile ${index} / ${totalProfileCount}")
-            vkProfile.universityRecords.collect(this.&toFaculty).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
+            vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
                 facultiesDistribution.put(faculty, facultiesDistribution.get(faculty, 0) + 1)
             }
         }
@@ -60,37 +60,5 @@ class FacultiesListService {
 
         statusUpdater.call("saving ${facultiesDistribution.keySet().size()} faculty record to database")
         vkFacultyRepository.save facultiesDistribution.keySet()
-    }
-
-    private VkFaculty toFaculty(VkUniversityRecord vkUniversityRecord) {
-        VkUniversity university = toUniversity(vkUniversityRecord)
-        if (university == null) {
-            return null
-        }
-        if (vkUniversityRecord.facultyId == null) {
-            return null
-        }
-
-        return VkFaculty.builder()
-                .university(university)
-                .facultyId(vkUniversityRecord.facultyId)
-                .facultyName(vkUniversityRecord.facultyName)
-                .build()
-    }
-
-    private VkUniversity toUniversity(VkUniversityRecord vkUniversityRecord) {
-        if (vkUniversityRecord.universityId == null) {
-            return null
-        }
-        if (vkUniversityRecord.countryId == null) {
-            return null
-        }
-
-        return VkUniversity.builder()
-                .universityId(vkUniversityRecord.universityId)
-                .universityName(vkUniversityRecord.universityName)
-                .countryId(vkUniversityRecord.countryId)
-                .cityId(vkUniversityRecord.cityId)
-                .build()
     }
 }
