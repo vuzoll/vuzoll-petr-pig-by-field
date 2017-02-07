@@ -6,7 +6,9 @@ import com.github.vuzoll.petrpigbyfield.domain.vk.VkFaculty
 import com.github.vuzoll.petrpigbyfield.domain.vk.VkProfile
 import com.github.vuzoll.petrpigbyfield.domain.vk.VkUniversity
 import com.github.vuzoll.petrpigbyfield.repository.DatasetRecordRepository
+import com.github.vuzoll.petrpigbyfield.repository.vk.VkFacultyRepository
 import com.github.vuzoll.petrpigbyfield.repository.vk.VkProfileRepository
+import groovy.transform.Memoized
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Query
@@ -27,6 +29,9 @@ class PetrPigByFieldService {
 
     @Autowired
     DatasetRecordRepository datasetRecordRepository
+
+    @Autowired
+    VkFacultyRepository vkFacultyRepository
 
     DurableJob preparePetrPigByFieldDatasetJob() {
         new DurableJob('prepare petr-pig-by-field dataset') {
@@ -52,11 +57,14 @@ class PetrPigByFieldService {
             statusUpdater.call("processing profile ${index} / ${totalProfileCount}")
             if (vkProfile.country != null) {
                 boolean doesProfileContainsUniversityRecords = false
-                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID && it.field != null }).each { VkFaculty faculty ->
-                    universitiesDistribution.put(faculty.university, universitiesDistribution.get(faculty.university, 0) + 1)
-                    facultiesDistribution.put(faculty, facultiesDistribution.get(faculty, 0) + 1)
-                    fieldDistribution.put(faculty.field, fieldDistribution.get(faculty.field, 0) + 1)
-                    doesProfileContainsUniversityRecords = true
+                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
+                    faculty.field = getFacultyField(faculty)
+                    if (faculty.field != null) {
+                        universitiesDistribution.put(faculty.university, universitiesDistribution.get(faculty.university, 0) + 1)
+                        facultiesDistribution.put(faculty, facultiesDistribution.get(faculty, 0) + 1)
+                        fieldDistribution.put(faculty.field, fieldDistribution.get(faculty.field, 0) + 1)
+                        doesProfileContainsUniversityRecords = true
+                    }
                 }
                 if (doesProfileContainsUniversityRecords) {
                     countriesDistribution.put(vkProfile.country, countriesDistribution.get(vkProfile.country, 0) + 1)
@@ -132,26 +140,35 @@ class PetrPigByFieldService {
         mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
             statusUpdater.call("saving profile ${index} / ${totalProfileCount}")
             if (vkProfile.country != null) {
-                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID && it.field != null }).each { VkFaculty faculty ->
-                    id++
-                    String row = [
-                            id,
-                            vkProfile.vkId,
-                            countriesDistribution.get(vkProfile.country),
-                            vkProfile.country.name,
-                            faculty.graduationYear,
-                            universitiesIds.get(faculty.university),
-                            faculty.university.universityName,
-                            facultiesIds.get(faculty),
-                            faculty.facultyName,
-                            fieldIds.get(faculty.field),
-                            faculty.field
-                    ].collect({ it?.toString()?:'' }).join(',')
+                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
+                    faculty.field = getFacultyField(faculty)
+                    if (faculty.field != null) {
+                        id++
 
-                    datasetRecordRepository.save DatasetRecord.builder().datasetName(name).rowNumber(id).row(row).build()
+                        String row = [
+                                id,
+                                vkProfile.vkId,
+                                countriesDistribution.get(vkProfile.country),
+                                vkProfile.country.name,
+                                faculty.graduationYear,
+                                universitiesIds.get(faculty.university),
+                                faculty.university.universityName,
+                                facultiesIds.get(faculty),
+                                faculty.facultyName,
+                                fieldIds.get(faculty.field),
+                                faculty.field
+                        ].collect({ it?.toString()?:'' }).join(',')
+
+                        datasetRecordRepository.save DatasetRecord.builder().datasetName(name).rowNumber(id).row(row).build()
+                    }
                 }
             }
         }
+    }
+
+    @Memoized
+    String getFacultyField(VkFaculty faculty) {
+        vkFacultyRepository.findOneByFacultyId(faculty.facultyId).field
     }
 
     Collection<DatasetRecord> generateDataset(String name, Collection data, List<String> columnNames, Closure<List> convertToValues) {
