@@ -41,6 +41,15 @@ GET to http://$host:$port/ui/field
 
 GET to http://$host:$port/field/{indexByNumberOfProfiles}
 
+GET to http://$host:$port/field/{indexByNumberOfProfiles}/{newFieldName}
+
+
+POST to http://$host:$port/prepare/dataset/petr-pig-by-field
+
+GET to http://$host:$port/dataset/{datasetName}/text
+
+GET to http://$host:$port//dataset/{datasetName}/file
+
 
 GET to http://$host:$port/job/{jobId}
 

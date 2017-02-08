@@ -14,8 +14,26 @@ class VkFaculty {
     VkUniversity university
     Integer facultyId
     String facultyName
+    Integer graduationYear
 
     Integer numberOfProfiles
 
     String field
+
+    static VkFaculty fromVkUniversityRecord(VkUniversityRecord vkUniversityRecord) {
+        VkUniversity university = VkUniversity.fromVkUniversityRecord(vkUniversityRecord)
+        if (university == null) {
+            return null
+        }
+        if (vkUniversityRecord.facultyId == null) {
+            return null
+        }
+
+        return VkFaculty.builder()
+                .university(university)
+                .facultyId(vkUniversityRecord.facultyId)
+                .facultyName(vkUniversityRecord.facultyName)
+                .graduationYear(vkUniversityRecord.graduationYear)
+                .build()
+    }
 }
