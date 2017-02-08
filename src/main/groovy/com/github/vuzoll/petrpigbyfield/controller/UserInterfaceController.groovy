@@ -1,4 +1,4 @@
-package com.github.vuzoll.petrpigbyfield.ui
+package com.github.vuzoll.petrpigbyfield.controller
 
 import com.github.vuzoll.petrpigbyfield.domain.Field
 import com.github.vuzoll.petrpigbyfield.domain.job.Job
@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
+import javax.servlet.http.HttpServletResponse
+
 @RestController
 @Slf4j
-class AssignFieldsToFacultiesUserInterface {
+class UserInterfaceController {
 
     static final Sort SORT_BY_NUMBER_OF_PROFILES_DESC = new Sort(new Sort.Order(Sort.Direction.DESC, 'numberOfProfiles'))
 
@@ -59,41 +61,51 @@ class AssignFieldsToFacultiesUserInterface {
     }
 
     @GetMapping(path = '/ui/faculty')
-    @ResponseBody String getAllFacultiesOrderedByNumberOfProfiles() {
-        vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFacultyPresentation).join('\n')
+    void getAllFacultiesOrderedByNumberOfProfiles(HttpServletResponse response) {
+        response.outputStream.withPrintWriter { writer ->
+            vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFacultyPresentation).each( { writer.write("${it}\n") } )
+        }
     }
 
     @GetMapping(path = '/ui/faculty/{indexByNumberOfProfiles}')
-    @ResponseBody String getFacultyByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
-        toFacultyPresentation(facultyByIndexByNumberOfProfiles(indexByNumberOfProfiles))
+    void getFacultyByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles, HttpServletResponse response) {
+        response.outputStream.withPrintWriter { writer ->
+            writer.write("${toFacultyPresentation(facultyByIndexByNumberOfProfiles(indexByNumberOfProfiles))}\n")
+        }
     }
 
     @GetMapping(path = '/ui/faculty/{indexByNumberOfProfiles}/{field}')
-    @ResponseBody String assignFieldToFaculty(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String field) {
+    void assignFieldToFaculty(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String field, HttpServletResponse response) {
         VkFaculty faculty = facultyByIndexByNumberOfProfiles(indexByNumberOfProfiles)
         faculty.field = field
 
         log.info "Receive request to assign field ${field} to faculty id=${faculty.id}, name=${faculty.facultyName} ${faculty.university.universityName}"
 
-        toFacultyPresentation(vkFacultyRepository.save(faculty))
+        response.outputStream.withPrintWriter { writer ->
+            writer.write("${toFacultyPresentation(vkFacultyRepository.save(faculty))}\n")
+        }
     }
 
     @GetMapping(path = '/ui/field')
-    @ResponseBody String getAllFieldsOrderedByNumberOfProfiles() {
+    void getAllFieldsOrderedByNumberOfProfiles(HttpServletResponse response) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
-        fieldRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFieldPresentation).join('\n')
+        response.outputStream.withPrintWriter { writer ->
+            fieldRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).collect(this.&toFieldPresentation).each( { writer.write("${it}\n") } )
+        }
     }
 
     @GetMapping(path = '/ui/field/{indexByNumberOfProfiles}')
-    @ResponseBody String getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles) {
+    void getFieldByIndexByNumberOfProfiles(@PathVariable Integer indexByNumberOfProfiles, HttpServletResponse response) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
-        toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
+        response.outputStream.withPrintWriter { writer ->
+            writer.write("${toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))}\n")
+        }
     }
 
     @GetMapping(path = '/ui/field/{indexByNumberOfProfiles}/{newFieldName}')
-    @ResponseBody String renameField(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String newFieldName) {
+    void renameField(@PathVariable Integer indexByNumberOfProfiles, @PathVariable String newFieldName, HttpServletResponse response) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
 
         Field oldField = fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles)
@@ -102,7 +114,10 @@ class AssignFieldsToFacultiesUserInterface {
         vkFacultyRepository.save(fieldFaculties)
 
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
-        toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))
+
+        response.outputStream.withPrintWriter { writer ->
+            writer.write("${toFieldPresentation(fieldByIndexByNumberOfProfiles(indexByNumberOfProfiles))}\n")
+        }
     }
 
     private VkFaculty facultyByIndexByNumberOfProfiles(Integer indexByNumberOfProfiles) {
