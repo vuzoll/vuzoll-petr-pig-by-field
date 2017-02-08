@@ -50,7 +50,7 @@ class PetrPigByFieldController {
 
     void datasetToFile(String datasetName, OutputStream outputStream) {
         outputStream.withPrintWriter { writer ->
-            dataset(datasetName).each(writer.&write)
+            dataset(datasetName).each( { writer.write("${it}\n") } )
         }
     }
 
