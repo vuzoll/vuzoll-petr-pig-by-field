@@ -86,6 +86,25 @@ class UserInterfaceController {
         }
     }
 
+    @GetMapping(path = '/ui/faculty/unassigned')
+    void getFirstUnassignedFaculty(HttpServletResponse response) {
+        response.outputStream.withPrintWriter { writer ->
+            vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).find({ StringUtils.isBlank(it.field) }).collect(this.&toFacultyPresentation).each( { writer.write("${it}\n") } )
+        }
+    }
+
+    @GetMapping(path = '/ui/faculty/unassigned/{field}')
+    void assignFieldToFirstUnassignedFaculty(@PathVariable String field, HttpServletResponse response) {
+        VkFaculty faculty = vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).find({ StringUtils.isBlank(it.field) })
+        faculty.field = field
+
+        log.info "Receive request to assign field ${field} to faculty id=${faculty.id}, name=${faculty.facultyName} ${faculty.university.universityName}"
+
+        response.outputStream.withPrintWriter { writer ->
+            writer.write("${toFacultyPresentation(vkFacultyRepository.save(faculty))}\n")
+        }
+    }
+
     @GetMapping(path = '/ui/field')
     void getAllFieldsOrderedByNumberOfProfiles(HttpServletResponse response) {
         jobsService.startJobAndWaitForFinish(fieldService.prepareFieldsListJob())
@@ -129,7 +148,7 @@ class UserInterfaceController {
     }
 
     private String toFacultyPresentation(VkFaculty faculty) {
-        Integer indexByNumberOfProfiles = allFacultiesOrderedByNumberOfProfilesDesc().findIndexOf({ it == faculty }) + 1
+        Integer indexByNumberOfProfiles = vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC).findIndexOf({ it == faculty }) + 1
 
         String facultyName = StringUtils.isNoneBlank(faculty.facultyName) ? faculty.facultyName : "faculty_id=${faculty.facultyId}"
         String universityName = StringUtils.isNoneBlank(faculty.university.universityName) ? faculty.university.universityName : "university_id=${faculty.university.universityId}"
@@ -145,10 +164,5 @@ class UserInterfaceController {
         List<String> facultiesPresentation = field.faculties.sort({ -it.numberOfProfiles }).collect(this.&toFacultyPresentation)
 
         return "${fieldName} - $numberOfProfiles\n${facultiesPresentation.collect({"\t\t${it}"}).join('\n')}"
-    }
-
-    @Memoized
-    private List<VkFaculty> allFacultiesOrderedByNumberOfProfilesDesc() {
-        vkFacultyRepository.findAll(SORT_BY_NUMBER_OF_PROFILES_DESC)
     }
 }

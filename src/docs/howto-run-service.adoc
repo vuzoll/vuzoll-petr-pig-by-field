@@ -37,6 +37,10 @@ GET to http://$host:$port/ui/faculty/{indexByNumberOfProfiles}
 
 GET to http://$host:$port/ui/faculty/{indexByNumberOfProfiles}/{field}
 
+GET to http://$host:$port/ui/faculty/unassigned
+
+GET to http://$host:$port/ui/faculty/unassigned/{field}
+
 GET to http://$host:$port/ui/field
 
 GET to http://$host:$port/field/{indexByNumberOfProfiles}
