@@ -35,23 +35,15 @@ class PetrPigByFieldController {
     }
 
     @GetMapping(path = '/dataset/{datasetName}/text')
-    @ResponseBody String getDatasetAsText(@PathVariable String datasetName) {
-        datasetToText(datasetName)
-    }
-
-    @GetMapping(path = '/dataset/{datasetName}/file', produces = 'text/csv')
-    void getDatasetAsFile(@PathVariable String datasetName, HttpServletResponse response) {
-        datasetToFile(datasetName, response.outputStream)
-    }
-
-    String datasetToText(String datasetName) {
-        dataset(datasetName).join('\n')
-    }
-
-    void datasetToFile(String datasetName, OutputStream outputStream) {
-        outputStream.withPrintWriter { writer ->
+    void getDatasetAsText(@PathVariable String datasetName, HttpServletResponse response) {
+        response.outputStream.withPrintWriter { writer ->
             dataset(datasetName).each( { writer.write("${it}\n") } )
         }
+    }
+
+    @GetMapping(path = '/dataset/{datasetName}/file')
+    void getDatasetAsFile(@PathVariable String datasetName, HttpServletResponse response) {
+        getDatasetAsText(datasetName, response)
     }
 
     List<String> dataset(String datasetName) {

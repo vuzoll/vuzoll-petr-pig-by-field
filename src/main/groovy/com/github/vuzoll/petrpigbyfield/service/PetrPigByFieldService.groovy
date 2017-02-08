@@ -45,19 +45,30 @@ class PetrPigByFieldService {
     }
 
     private void preparePetrPigByFieldDataset(Closure statusUpdater) {
+        final long totalProfileCount = vkProfileRepository.count()
+
+        statusUpdater.call("determining universities location")
+        Map<VkUniversity, Integer> ukrainianUniversityBalance = [:]
+        mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
+            statusUpdater.call("processing profile ${index} / ${totalProfileCount} for determining universities location")
+            vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null }).each { VkFaculty faculty ->
+                int balanceDelta = faculty.university.countryId == UKRAINE_ID ? 1 : -1
+                ukrainianUniversityBalance.put(faculty.university, ukrainianUniversityBalance.getOrDefault(faculty.university, 0) + balanceDelta)
+            }
+        }
+
+        statusUpdater.call("converting profiles to education records")
+
         Map<VkCountry, Integer> countriesDistribution = [:]
         Map<VkUniversity, Integer> universitiesDistribution = [:]
         Map<VkFaculty, Integer> facultiesDistribution = [:]
         Map<String, Integer> fieldDistribution = [:]
 
-        final long totalProfileCount = vkProfileRepository.count()
-
-        statusUpdater.call("processing profiles")
         mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
-            statusUpdater.call("processing profile ${index} / ${totalProfileCount}")
+            statusUpdater.call("processing profile ${index} / ${totalProfileCount} for converting profiles to education records")
             if (vkProfile.country != null) {
                 boolean doesProfileContainsUniversityRecords = false
-                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
+                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll(this.&isUkrainian.curry(ukrainianUniversityBalance)).each { VkFaculty faculty ->
                     faculty.field = getFacultyField(faculty)
                     if (faculty.field != null) {
                         universitiesDistribution.put(faculty.university, universitiesDistribution.get(faculty.university, 0) + 1)
@@ -138,9 +149,9 @@ class PetrPigByFieldService {
 
         int id = 0
         mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
-            statusUpdater.call("saving profile ${index} / ${totalProfileCount}")
+            statusUpdater.call("processing profile ${index} / ${totalProfileCount} for generating petr-pig-by-field file")
             if (vkProfile.country != null) {
-                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
+                vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll(this.&isUkrainian.curry(ukrainianUniversityBalance)).each { VkFaculty faculty ->
                     faculty.field = getFacultyField(faculty)
                     if (faculty.field != null) {
                         id++
@@ -178,5 +189,9 @@ class PetrPigByFieldService {
         }
 
         return dataset
+    }
+
+    private boolean isUkrainian(Map<VkUniversity, Integer> ukrainianUniversityBalance, VkFaculty faculty) {
+        faculty != null && ukrainianUniversityBalance.getOrDefault(faculty.university, 0) > 0
     }
 }
