@@ -148,7 +148,7 @@ class PetrPigByFieldService {
                         String row = [
                                 id,
                                 vkProfile.vkId,
-                                countriesDistribution.get(vkProfile.country),
+                                countriesIds.get(vkProfile.country),
                                 vkProfile.country.name,
                                 faculty.graduationYear,
                                 universitiesIds.get(faculty.university),
