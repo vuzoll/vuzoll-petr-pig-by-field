@@ -174,7 +174,7 @@ class PetrPigByFieldService {
     Collection<DatasetRecord> generateDataset(String name, Collection data, List<String> columnNames, Closure<List> convertToValues) {
         Collection<DatasetRecord> dataset = [ DatasetRecord.builder().datasetName(name).rowNumber(0).row(columnNames.join(',')).build() ]
         data.eachWithIndex { dataObject, index ->
-            dataset.add DatasetRecord.builder().datasetName(name).row(index + 1).row(convertToValues.call(dataObject).collect({ it?.toString()?:'' }).join(',')).build()
+            dataset.add DatasetRecord.builder().datasetName(name).rowNumber(index + 1).row(convertToValues.call(dataObject).collect({ it?.toString()?:'' }).join(',')).build()
         }
 
         return dataset
