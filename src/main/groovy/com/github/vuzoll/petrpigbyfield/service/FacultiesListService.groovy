@@ -39,13 +39,23 @@ class FacultiesListService {
     }
 
     private void prepareFacultiesList(Closure statusUpdater) {
-        Map<VkFaculty, Integer> facultiesDistribution = [:]
-
         final long totalProfileCount = vkProfileRepository.count()
 
+        statusUpdater.call("determining universities location")
+        Map<VkUniversity, Integer> ukrainianUniversityBalance = [:]
         mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
-            statusUpdater.call("processing profile ${index} / ${totalProfileCount}")
-            vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null && it.university.countryId == UKRAINE_ID }).each { VkFaculty faculty ->
+            statusUpdater.call("processing profile ${index} / ${totalProfileCount} for determining universities location")
+            vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll({ it != null }).each { VkFaculty faculty ->
+                int balanceDelta = faculty.university.countryId == UKRAINE_ID ? 1 : -1
+                ukrainianUniversityBalance.put(faculty.university, ukrainianUniversityBalance.getOrDefault(faculty.university, 0) + balanceDelta)
+            }
+        }
+
+        statusUpdater.call("preparing faculties list")
+        Map<VkFaculty, Integer> facultiesDistribution = [:]
+        mongoTemplate.stream(new Query(), VkProfile).eachWithIndex { VkProfile vkProfile, int index ->
+            statusUpdater.call("processing profile ${index} / ${totalProfileCount} for preparing faculties list")
+            vkProfile.universityRecords.collect(VkFaculty.&fromVkUniversityRecord).findAll(this.&isUkrainian.curry(ukrainianUniversityBalance)).each { VkFaculty faculty ->
                 facultiesDistribution.put(faculty, facultiesDistribution.get(faculty, 0) + 1)
             }
         }
@@ -60,5 +70,9 @@ class FacultiesListService {
 
         statusUpdater.call("saving ${facultiesDistribution.keySet().size()} faculty record to database")
         vkFacultyRepository.save facultiesDistribution.keySet()
+    }
+
+    private boolean isUkrainian(Map<VkUniversity, Integer> ukrainianUniversityBalance, VkFaculty faculty) {
+        faculty != null && ukrainianUniversityBalance.getOrDefault(faculty.university, 0) > 0
     }
 }
