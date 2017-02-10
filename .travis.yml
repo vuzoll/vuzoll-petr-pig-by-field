@@ -1,0 +1,41 @@
+sudo: required
+
+language: java
+
+services:
+- docker
+
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+
+before_install:
+- chmod +x gradlew
+
+install:
+- "./gradlew build -Dscan"
+
+before_script:
+- docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+script:
+- export DOCKER_REPO=vuzoll/vuzoll-petr-pig-by-field
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH | tr '/' '-' ; fi`
+- docker build -t $DOCKER_REPO:travis-$TRAVIS_BUILD_NUMBER .
+- docker tag $DOCKER_REPO:travis-$TRAVIS_BUILD_NUMBER $DOCKER_REPO:$TAG
+- docker push $DOCKER_REPO
+
+notifications:
+  slack:
+    secure: LG9yaDqE3HRNrtAmj4zA4Y3v4I70iwUiCCJgExgq+7ehEUCwHbog4KhZgs+pY4TNjFy9aA6taGvSalNNVkIbBpwTNEfFl8/JFd7kE2Ew1/inZGxZSK2izhN+56NS9ycZd570MmXPKGsJHxuDE8tEQaTP/oC0TLKVbhn1a0yHo59SFw1QGX5ZP2D0xM6xCByGV1bjlwJZVg05XOiUVZHI1mZZPs5fRP/USrh7k5ZvUx06d2zAcPWrsJDzDf81WjGyULoAH4btxW/nbfUEgqHNPjkQI/HIFvmvxtLkWroKPw9FV/cIxRTw8IPexuZW2flHLaub9RGAkBURjVdCDfooF5hifHk8pKHJ/8yYS7N+vTe8jxEyz6JCSJm+WghU77yYy6VoUTBABy2gngZcbiFovg6Ip0QRutuoizwC+nAEGh4DXqcCfEkYemcwIzlmJr9XGMdAEg3tST1npkgSkhmsS54JcuHt41QcO9YtW66BhoncsftaTLcJ2L19y6LToUETKO+k/w6lRbmPM3Fekh5JW+FAU9B1CczAnr+S8PwhwjDfO7OuuQvriMCO8tdZdYYhNIt5/dpeUS3/96Wph62jkVy6ZD4lHIC8DDfC5KC7jgudo7L3F5YXqHJAun2NdESfUYpS6syxnKEyVyNRTsUPQwKearvWN/0CR21B5tGLEHI=
+    
+env:
+  global:
+  - secure: r9NkjVoHfa+IdiJo/tOL/v+XxCGFzNluuTM5R/23ymCocnGhn+QtiHSHcrHZUbmOSJ+r0HGh9w44CifyXF8uHPkoF2TL/Qjn/eEstWaP5yp1JHf9vlvn52kxuIGndceY/ahokRnuQP+AS++NOwVJGRa6IKLX+iN+gAwBriJ/Hvckk1tXhreX9sdFpeQJPWIgu1gQIvJtZuUOYCFoCiJOlUl6Hsz1m7JtjD2pT7NBtzuAe8js2/tVJvyypk5qvyjCPUPOG+YyidfnkVbBBY15TojmORrPXhJlM2nclwzQR06gzusbAvdvE73nU8qF/jPkO2QoV3JSvomxGkhrvXQQLFCO+q12gIKuQ759rIyXxoAVdrU6aTPdOL0a6aK9oj1qJiMPE2mgf4iaEUM0CiGYLWQNgNk0XlE8lECqH8ppxQkUfgMlmSljvD+wQkkh1M7EVD2WURrmAYnHlfLHM3mKIEiC41cc2Q7bGccVMXy6kT1UGswT2vTaWLFL10tFnnZjjLTgl+qvgrr/b9p7T7g3llRUMxQ2fxutH1vshKFaYWGN0OtzEEuzbyY4D0o8eJeQmcsboG22sg0u/6cjJqJWBy1WQlNNIBSNaG0kiL3lw6+L0Q7KruHgTtb1UGpVQ8BWSpPDjAJaNgUCOXGqhUAcfFTQVcIx/TRjcKv3zXTNOQQ=
+  - secure: sottAE0RipDeEYW6GJw9E6VW7iZq7TUUMi/Iz/9Ahxfneb9EgfYFfYOinDcIsKDH4dCe8XJbNTTSY2SNigYNMAdFgA6tW+0MehCDD0eEzRi3UFX0PeHqLedV6vSnP2aCku6qnSkWnyfeaGOzZ8N9BhaYqliPRrhn4c9fD3XO8qNTcQhwoOkJB865TxyICgwcu1AVTJ2b5LT87B/8DiWHTpFtK+Tplnj9x/y8dPLhwCBKGro4BIBNqZuG8nhFYZ8990hBIUcxk2c62Z4Gf99B1Jcr9Wby2iXy5lNs0ilJlfzmuQuSL45N7FInNmWfJNGlkwUwX4ZgIB9aUaGAzku+K+zIwj9+j0K3shi2RVmERdGylH/FYv/ld/ggZA3W6zIYtT2Rh/3bC83+d+PsSMtnwpkPbOhrZGswCflaDx0LE6yjyCffgQMy1KvO4oUtiEIOqBtqS6HHcCE/yGeBh30pYKXzgO6Vo0uYPaqTwN4RyelnCrhrZdxt3cIeJG36Pa6PFkHz4XtGUCBF2bO6YCKjKQOOgiHMmhzqruLfQNvykMUlf7AM2zdhX1aYFuOT3VjEW4N5YbciagPFNf7vTk8NMY14PnQuoCixFckRMTTveaZhRGLGKhixFyef/PVL2LW3S5dmpj7GYBMiXtIBc/h7MSyfW/cGyVS3GwDgKIQygnk=
+  - secure: bHdqRxayJDwE4DjBLZxk8d6/Z9gBhjGo69OCriBuYSoWihUvsbPuJh2YrXwNXzSWb2uk4kk/OEbm0wyc4e+1DczK6FnLKtOf+3F5Td8BXhEej7duQTKHbKF6SPmQ2mEnP4Z7JbrzdlnrrYvG+IktQGETS31K64BJMVPMO2kVyfTP9d+o5jOE0/Z4lkraGm55pIRa1DPmKVhwPZ6/5yFfSsns1uNjmV0arqwrCDLLAYBi6lLi9B4oGpIdZdj73mNA2vt4vyDF63THVh9hGPChgn0rccWp6UfY2uTlrxHVfF0eRxV/zbuU/oAxBUFy1HEyT6froUoDT76HAl6Wt9ZrVR2CfmtAsj0X/sFOsdH8QXqfzX+7SFIyLxkX6WFlUDkIL258ExRya5+cnenPTDzpPWN72pV4NpJ5a1gnXQa/ugvthhNit3R/32p/EtpxGfg6hjfoD9351xighOGqZvEVO89ZJEw8xlfyAjkTOueODRW6d0BYG84zW2QGvQroEPcp+R8KtpRKX46+TgU0t1GS2cEpOYcRuN3eTpdYROooyR14w6qP2gV2apkv4OFB9RusqvaIwb/540DIn5vnvebQIEq2bVpqqjFhHkig93qXy6wA+mwLzMji1ENjOG7o9L4rhc59oyeKkIa16LW5jLOGSZy7t+H42vD7KYjwP8MyF68=

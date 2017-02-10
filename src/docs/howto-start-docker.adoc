@@ -1,0 +1,43 @@
+= HOWTO: start service as docker container
+
+== Cleaning previously started container
+
+[source,shell]
+----
+docker ps -a
+docker kill vuzoll_petr_pig_by_field; docker rm vuzoll_petr_pig_by_field
+----
+
+== Configuration parameters
+
+Following environment variable are available for global service configuration:
+
+MONGO_DATABASE_NAME - mongodb database name to use (default is vuzoll)
+
+MONGO_AUTH_DATABASE_NAME - mongodb database name used for authentication (default is admin)
+
+MONGO_HOST - host of mongodb instance (default is vuzoll_mongo)
+
+MONGO_PORT - port of mongodb instance (default is 27017)
+
+MONGO_USERNAME - username for authentication to mongodb (default is petrPigByFieldService)
+
+MONGO_PASSWORD - password for authentication to mongodb
+
+FACULTIES_LIST_UPDATE_DELAY - delay for getting updates for preparing faculties list (default is 1min)
+
+FIELDS_LIST_UPDATE_DELAY - delay for getting updates for preparing fields list (default is 5sec)
+
+PETR_PIG_BY_FIELD_DATASET_UPDATE_DELAY - delay for getting updates for preparing petr-pig-by-field dataset (default is 30sec)
+
+ROOT_LOG_LEVEL - logging level for third-party libraries (default is INFO)
+
+VUZOLL_LOG_LEVEL - logging level for service code (default is INFO)
+
+== Start service
+
+[source,shell]
+----
+docker pull vuzoll/vuzoll-petr-pig-by-field:$TAG
+docker run -dit --name vuzoll_petr_pig_by_field --link vuzoll_mongo -v /logs:/logs -e MONGO_PASSWORD=$MONGO_PASSWORD -p 28003:8080 vuzoll/vuzoll-petr-pig-by-field:$TAG
+----
