@@ -18,7 +18,10 @@ before_install:
 - chmod +x gradlew
 
 install:
-- "./gradlew build -Dscan"
+- "./gradlew build jacocoTestReport --scan"
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
 
 before_script:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"

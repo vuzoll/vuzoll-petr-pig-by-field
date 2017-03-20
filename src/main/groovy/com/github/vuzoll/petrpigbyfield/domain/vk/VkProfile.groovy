@@ -13,6 +13,12 @@ class VkProfile {
     @Indexed
     Integer vkId
 
+    @Indexed
+    Integer ingestionIndex
+
+    @Indexed
+    String datasetName
+
     String vkDomain
     Integer vkLastSeen
     Boolean vkActive
@@ -33,7 +39,7 @@ class VkProfile {
     VkCity city
     VkCountry country
     String homeTown
-    Integer sex
+    String sex
 
     VkOccupation occupation
     Set<VkCareerRecord> careerRecords

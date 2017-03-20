@@ -10,4 +10,8 @@ interface VkFacultyRepository extends PagingAndSortingRepository<VkFaculty, Stri
     VkFaculty findOneByFacultyId(Integer facultyId)
 
     Collection<VkFaculty> findByField(String field)
+
+    Collection<VkFaculty> findByDatasetName(String datasetName)
+
+    void deleteByDatasetName(String datasetName)
 }

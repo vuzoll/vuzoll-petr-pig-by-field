@@ -1,10 +1,18 @@
 = vuzoll-petr-pig-by-field
 
-Generates PetrPigByField dataset.
+Service for generating petr-pig-by-field dataset.
 
-TravisCI - https://travis-ci.org/vuzoll/vuzoll-petr-pig-by-field/
+== Travis job
 
-DockerHub - https://hub.docker.com/r/vuzoll/vuzoll-petr-pig-by-field/
+image:https://travis-ci.org/vuzoll/vuzoll-petr-pig-by-field.svg?branch=develop["Travis job", link="https://travis-ci.org/vuzoll/vuzoll-petr-pig-by-field"]
+
+== Code coverage
+
+image:https://codecov.io/gh/vuzoll/vuzoll-petr-pig-by-field/branch/develop/graph/badge.svg["Code coverage", link="https://codecov.io/gh/vuzoll/vuzoll-petr-pig-by-field"]
+
+== Docker repository
+
+https://hub.docker.com/r/vuzoll/vuzoll-petr-pig-by-field/
 
 == Documentation
 

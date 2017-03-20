@@ -3,6 +3,7 @@ package com.github.vuzoll.petrpigbyfield.domain.vk
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.builder.Builder
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 
 @EqualsAndHashCode(includes = 'facultyId')
 @Builder
@@ -10,6 +11,9 @@ class VkFaculty {
 
     @Id
     String id
+
+    @Indexed
+    String datasetName
 
     VkUniversity university
     Integer facultyId

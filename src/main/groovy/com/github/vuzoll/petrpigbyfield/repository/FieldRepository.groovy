@@ -8,4 +8,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 interface FieldRepository extends PagingAndSortingRepository<Field, String> {
 
     Collection<Field> findByName(String name)
+
+    void deleteByDatasetName(String datasetName)
 }
